@@ -7,10 +7,14 @@
 const unsigned int BUFSIZE = 80*200;
 unsigned char *buffer = new unsigned char[BUFSIZE];
 
-void setBufferPixel(const int x, const int y, const char color) {
-  const int byte = (y*320 + x)/4;
-  const int offset = x%4*2;
-  const char m = 0x3 << offset;
+void setBufferPixel(const int x, const int y, const unsigned char color) {
+  const unsigned int byte = y*80 + x/4;
+  if (byte >= BUFSIZE) {
+    return;
+  }
+
+  const int offset = 6 - (x%4)*2; // shift by this positions, 0 or 2 or 4 or 6
+  const char m = 0x3 << offset; // 00000011 or 00001100 or 00110000 or 11000000
   unsigned char c = buffer[byte];
   c = c & ~m;
   c = c | (color << offset);
@@ -18,14 +22,7 @@ void setBufferPixel(const int x, const int y, const char color) {
 }
 
 void fillBuffer(const unsigned char color) {
-  //const int clr = color;
-  //printf("%u\n", clr);
   memset(buffer, color, BUFSIZE);
-  // for (unsigned int y = 0; y < 200; y++) {
-  //   for (unsigned int x = 0; x < 80; x++) {
-  //     buffer[y*80 + x] = color;
-  //   }
-  // }
 }
 
 void flushBuffer() {
@@ -37,9 +34,6 @@ void flushBuffer() {
     _fmemcpy((void far*)(p + 80*row),
              (const void far*)(buffer + y*80),
              80);
-    // for (unsigned int x = 0; x < 80; x++) {
-    //   p[row*80 + x] = buffer[y*80 + x];
-    // }
   }
 }
 
@@ -73,9 +67,9 @@ void line(float x1, float y1, float x2, float y2, const int color )
 
   for(int x=(int)x1; x<maxX; x++) {
     if (steep) {
-      buffer[y + x*320] = color;
+      setBufferPixel(y, x, color);
     } else {
-      buffer[x + y*320] = color;
+      setBufferPixel(x, y, color);
     }
 
     error -= dy;
