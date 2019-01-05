@@ -115,10 +115,10 @@ void drawQuadrilateral() {
 float mapPos = 0;
 void drawMap() {
   const int x = 40;
-  const int y = 140;
+  const int y = 150;
   const int w = 32;
   const int h = 24;
-  const int xcount = 8;
+  const int xcount = 7;
   const int ycount = 6;
   const char color = 3;
   line(x-w, y-h, x+w, y-h, color);
@@ -131,12 +131,24 @@ void drawMap() {
   int i = 0;
   // hor lines
   for (i = 0; i < ycount; i++) {
-    line(x-w, y-h+i*ystep, x+w, y-h+i*ystep, color);
+    line(x-w, y-h+i*ystep+mapPos, x+w, y-h+i*ystep+mapPos, color);
   }
   // vert lines
   for (i = 0; i < xcount; i++) {
     line(x-w+i*xstep, y-h, x-w+i*xstep, y+h, color);
   }
+
+  mapPos += 0.4;
+  if (mapPos >= ystep) {
+    mapPos = 0;
+  }
+
+  // Triangle
+  const int sz = 10;
+  const int tw = 12;
+  line(x - tw/2, y + sz/2, x + tw/2, y + sz/2, 2);
+  line(x - tw/2, y + sz/2, x, y - sz/2, 2);
+  line(x + tw/2 - 1, y + sz/2, x - 1, y - sz/2, 2);
 }
 
 int main (void)
