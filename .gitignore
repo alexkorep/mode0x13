@@ -1,5 +1,7 @@
 TC
 .vscode
 *.EXE
+*.exe
 *.OBJ
+*.o
 BP

@@ -1,4 +1,4 @@
 SET PATH=%PATH%;C:/TC/BIN/
-tcc -ITC\INCLUDE -LTC\LIB buffer/testbuf.cpp
+tcc -ITC\INCLUDE -LTC\LIB buffer/navpanel.cpp
 pause
-testbuf.exe
+navpanel.exe
