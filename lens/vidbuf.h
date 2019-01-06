@@ -4,33 +4,15 @@
 #include <string.h>
 #include "cga.h"
 
-const unsigned int BUFSIZE = 80*200;
-unsigned char *buffer = new unsigned char[320*200];
+const unsigned int BUFSIZE = 320*200;
+unsigned char *buffer = new unsigned char[BUFSIZE];
 
 void setBufferPixel(const int x, const int y, const unsigned char color) {
-  const unsigned int byte = y*80 + x/4;
-  if (byte >= BUFSIZE) {
-    return;
-  }
-
-  const int offset = 6 - (x%4)*2; // shift by this positions, 0 or 2 or 4 or 6
-  const char m = 0x3 << offset; // 00000011 or 00001100 or 00110000 or 11000000
-  unsigned char c = buffer[byte];
-  c = c & ~m;
-  c = c | (color << offset);
-  buffer[byte] = c;
+  buffer[y*320+x] = color;
 }
 
 unsigned char getBufferPixel(const int x, const int y) {
-  const unsigned int byte = y*80 + x/4;
-  if (byte >= BUFSIZE) {
-    return 0;
-  }
-
-  const int offset = 6 - (x%4)*2; // shift by this positions, 0 or 2 or 4 or 6
-  unsigned char c = buffer[byte];
-  c = c >> offset;
-  return c & 0x3;
+  return buffer[y*320+x];
 }
 
 
@@ -74,6 +56,21 @@ void fillBuffer(const unsigned char color) {
   memset(buffer, color, BUFSIZE);
 }
 
+unsigned char getLensBufferPixel(const int x, const int y,
+                                 int lensX, int lensY,
+                                 int lensW, int lensH,
+                                 int shiftX, int shiftY) {
+  int nx = x;
+  int ny = y;
+  if (x >= lensX - lensW && x <= lensX + lensW &&
+      y >= lensY - lensH && y <= lensY + lensH) {
+    ny = y + shiftY;
+    nx = x + shiftX;
+  }
+  return getBufferPixel(nx, ny);
+}
+
+
 void flushBuffer(int lensX, int lensY,
                  int lensW, int lensH,
                  int shiftX, int shiftY) {
@@ -82,16 +79,22 @@ void flushBuffer(int lensX, int lensY,
       ? (unsigned char far*)(0xB8002000L)
       : (unsigned char far*)(0xB8000000L);
     const unsigned int row = y/2;
-    for (int x = 0; x < 320; x++) {
-      int nx = x;
-      int ny = y;
-      if (x >= lensX - lensW && x <= lensX + lensW &&
-          y >= lensY - lensH && y <= lensY + lensH) {
-        ny = y + shiftY;
-        nx = x + shiftX;
-      }
-      const unsigned char color = getBufferPixel(nx, ny);
-      setScreenPixel(x, y, color);
+    for (int x = 0; x < 320; x+=4) {
+      const unsigned char color1 = getLensBufferPixel(x, y,
+        lensX, lensY, lensW, lensH, shiftX, shiftY);
+      const unsigned char color2 = getLensBufferPixel(x + 1, y,
+        lensX, lensY, lensW, lensH, shiftX, shiftY);
+      const unsigned char color3 = getLensBufferPixel(x + 2, y,
+        lensX, lensY, lensW, lensH, shiftX, shiftY);
+      const unsigned char color4 = getLensBufferPixel(x + 3, y,
+        lensX, lensY, lensW, lensH, shiftX, shiftY);
+      unsigned char c = color4 + (color3 << 2) + (color2 << 4) + (color1 << 6);
+
+      unsigned char far *p = (1 == (y & 0x1))
+        ? (unsigned char far*)(0xB8002000L)
+        : (unsigned char far*)(0xB8000000L);
+      const int row = y/2;
+      p[row*80 + x/4] = c;
     }
   }
 }
