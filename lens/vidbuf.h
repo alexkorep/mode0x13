@@ -62,8 +62,12 @@ unsigned char getLensBufferPixel(const int x, const int y,
                                  int shiftX, int shiftY) {
   int nx = x;
   int ny = y;
-  if (x >= lensX - lensW && x <= lensX + lensW &&
-      y >= lensY - lensH && y <= lensY + lensH) {
+  // if (x >= lensX - lensW && x <= lensX + lensW &&
+  //     y >= lensY - lensH && y <= lensY + lensH) {
+  long int xs = x - lensX;
+  long int ys = y - lensY;
+  long int rs = lensW*lensH;
+  if (xs*xs + ys*ys < rs) {
     ny = y + shiftY;
     nx = x + shiftX;
   }
