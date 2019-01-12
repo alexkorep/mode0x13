@@ -8,53 +8,52 @@ var x=96
 var y=24
 
 const sprites = [
-  // x, y, w, h
-  115, 40, 10, 40,
-  0, 0, 13, 40,
-  15, 0, 16, 40,
-  33, 0, 18, 40,
-  53, 0, 24, 40,
-  79, 0, 23, 40,
-  104, 0, 23, 40,
-
-  0, 40, 31, 40,
-  33, 40, 31, 40,
-  66, 40, 23, 40,
-  91, 40, 24, 40,
-
-  0, 80, 29, 40,
-  31, 80, 31, 40,
-  64, 80, 21, 40,
-  87, 80, 23, 40,
+  // x, y, w, h, eye_pos
+  {x: 115, y: 40, w: 10, h: 40, eyex: 8},
+  {x: 0,   y: 0,  w: 13, h: 40, eyex: 11},
+  {x: 15,  y: 0,  w: 16, h: 40, eyex: 14},
+  {x: 33,  y: 0,  w: 18, h: 40, eyex: 16},
+  {x: 53,  y: 0,  w: 24, h: 40, eyex: 22},
+  {x: 79,  y: 0,  w: 23, h: 40, eyex: 21},
+  {x: 104, y: 0,  w: 23, h: 40, eyex: 21},
+  {x: 0,   y: 40, w: 31, h: 40, eyex: 26},
+  {x: 33,  y: 40, w: 31, h: 40, eyex: 29},
+  {x: 66,  y: 40, w: 23, h: 40, eyex: 21},
+  {x: 91,  y: 40, w: 24, h: 40, eyex: 22},
+  {x: 0,   y: 80, w: 29, h: 40, eyex: 27},
+  {x: 31,  y: 80, w: 31, h: 40, eyex: 29},
+  {x: 64,  y: 80, w: 21, h: 40, eyex: 19},
+  {x: 87,  y: 80, w: 23, h: 40, eyex: 21},
 ]
 
 function printSprite(idx, xpos, ypos, flip) {
-  const x = sprites[idx*4 + 0]
-  const y = sprites[idx*4 + 1]
-  const w = sprites[idx*4 + 2]
-  const h = sprites[idx*4 + 3]
+  const x = sprites[idx].x
+  const y = sprites[idx].y
+  const w = sprites[idx].w
+  const h = sprites[idx].h
+  const eyex = sprites[idx].eyex
   const sx = Math.floor(x/8)
   const offsX = x - sx*8
   const sw = Math.ceil((x + w)/8) - sx
   const sy = Math.floor(y/8)
   const offsY = y - sy*8
   const sh = Math.ceil((y + h)/8) - sy
-  clip(xpos, ypos, w, h);
+  clip(xpos - eyex, ypos, w, h);
   const sprIdx = sy*16 + sx
-  spr(sprIdx, xpos - offsX, ypos - offsY,
+  spr(sprIdx, xpos - offsX - eyex, ypos - offsY,
       0, 1, flip, 0, sw, sh)
   clip()
   //rectb(xpos-1, ypos-1, w+2, h+2, 15)
 }
 
 var spriteIdx = 0
-var spriteSpeed = 0.1
+var spriteSpeed = 0.15
 var flip = 0
 
 function nextSprite() {
   spriteIdx += spriteSpeed
-  if (spriteIdx >= sprites.length/4) {
-    spriteIdx = 11
+  if (spriteIdx >= sprites.length) {
+    spriteIdx = 7
   }
 }
 
@@ -72,7 +71,7 @@ function TIC()
     x++
     nextSprite()
   } else {
-    spriteIdx = 11
+    spriteIdx = 0
   }
   const spriteIdxInt = Math.floor(spriteIdx)
 
@@ -356,7 +355,7 @@ function TIC()
 // </SFX>
 
 // <PALETTE>
-// 000:140c1c44243430346d4e4a4e854c30346524d04648757161597dced27d2c8595a16daa2cd2aa996dc2cadad45edeeed6
+// 000:140c1c44243430346d4e4a4e854c30346524b29d38757161597dced281858595a16daa2cd2aa996dc2cadad45edeeed6
 // </PALETTE>
 
 // <PALETTE1>
