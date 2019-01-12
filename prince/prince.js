@@ -9,21 +9,21 @@ var y=24
 
 const sprites = [
   // x, y, w, h, eye_pos
-  {x: 115, y: 40, w: 10, h: 40, eyex: 8},
-  {x: 0,   y: 0,  w: 13, h: 40, eyex: 11},
-  {x: 15,  y: 0,  w: 16, h: 40, eyex: 14},
-  {x: 33,  y: 0,  w: 18, h: 40, eyex: 16},
-  {x: 53,  y: 0,  w: 24, h: 40, eyex: 22},
-  {x: 79,  y: 0,  w: 23, h: 40, eyex: 21},
-  {x: 104, y: 0,  w: 23, h: 40, eyex: 21},
-  {x: 0,   y: 40, w: 31, h: 40, eyex: 26},
-  {x: 33,  y: 40, w: 31, h: 40, eyex: 29},
-  {x: 66,  y: 40, w: 23, h: 40, eyex: 21},
-  {x: 91,  y: 40, w: 24, h: 40, eyex: 22},
-  {x: 0,   y: 80, w: 29, h: 40, eyex: 27},
-  {x: 31,  y: 80, w: 31, h: 40, eyex: 29},
-  {x: 64,  y: 80, w: 21, h: 40, eyex: 19},
-  {x: 87,  y: 80, w: 23, h: 40, eyex: 21},
+  {x: 115, y: 40, w: 10, h: 40, eyex: 8, speed: 0.2},
+  {x: 0,   y: 0,  w: 13, h: 40, eyex: 11, speed: 0.3},
+  {x: 15,  y: 0,  w: 16, h: 40, eyex: 14, speed: 0.5},
+  {x: 33,  y: 0,  w: 18, h: 40, eyex: 16, speed: 0.7},
+  {x: 53,  y: 0,  w: 24, h: 40, eyex: 22, speed: 0.8},
+  {x: 79,  y: 0,  w: 23, h: 40, eyex: 21, speed: 1.0},
+  {x: 104, y: 0,  w: 23, h: 40, eyex: 21, speed: 1.2},
+  {x: 0,   y: 40, w: 31, h: 40, eyex: 26, speed: 1.5},
+  {x: 33,  y: 40, w: 31, h: 40, eyex: 29, speed: 1.5},
+  {x: 66,  y: 40, w: 23, h: 40, eyex: 21, speed: 1.5},
+  {x: 91,  y: 40, w: 24, h: 40, eyex: 22, speed: 1.5},
+  {x: 0,   y: 80, w: 29, h: 40, eyex: 27, speed: 1.5},
+  {x: 31,  y: 80, w: 31, h: 40, eyex: 29, speed: 1.5},
+  {x: 64,  y: 80, w: 21, h: 40, eyex: 19, speed: 1.5},
+  {x: 87,  y: 80, w: 23, h: 40, eyex: 21, speed: 1.5},
 ]
 
 function printSprite(idx, xpos, ypos, flip) {
@@ -33,21 +33,25 @@ function printSprite(idx, xpos, ypos, flip) {
   const h = sprites[idx].h
   const eyex = sprites[idx].eyex
   const sx = Math.floor(x/8)
-  const offsX = x - sx*8
   const sw = Math.ceil((x + w)/8) - sx
   const sy = Math.floor(y/8)
+  const offsX = flip ? (sx + sw)*8 - x -w : x - sx*8
   const offsY = y - sy*8
   const sh = Math.ceil((y + h)/8) - sy
-  clip(xpos - eyex, ypos, w, h);
+
+  // where to put sprite to have eye at xpos
+  const compensatedX = flip ? xpos - w + eyex : xpos - eyex
+
+  clip(compensatedX, ypos, w, h);
   const sprIdx = sy*16 + sx
-  spr(sprIdx, xpos - offsX - eyex, ypos - offsY,
+  spr(sprIdx, compensatedX - offsX, ypos - offsY,
       0, 1, flip, 0, sw, sh)
   clip()
   //rectb(xpos-1, ypos-1, w+2, h+2, 15)
 }
 
 var spriteIdx = 0
-var spriteSpeed = 0.15
+var spriteSpeed = 0.2
 var flip = 0
 
 function nextSprite() {
@@ -62,22 +66,24 @@ function TIC()
   // if(btn(0))y--
   // if(btn(1))y++
 
+  cls(0)
+
+  const spriteIdxInt = Math.floor(spriteIdx)
+  printSprite(spriteIdxInt, Math.floor(x), y, flip)
+  //print(spriteIdx.toString())
+  const speed = sprites[spriteIdxInt].speed
   if(btn(2)) {
     flip = 1
-    x--
+    x -= speed
     nextSprite()
   } else if(btn(3)) {
     flip = 0
-    x++
+    x += speed
     nextSprite()
   } else {
     spriteIdx = 0
   }
-  const spriteIdxInt = Math.floor(spriteIdx)
 
-  cls(0)
-  printSprite(spriteIdxInt, x, y, flip)
-  print(spriteIdx.toString())
 }
 
 // <TILES>
